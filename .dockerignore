@@ -1,0 +1,21 @@
+# Ignore the build output folders
+**/bin/
+**/obj/
+
+# Ignore git history (reduces build context size massively)
+.git/
+.gitignore
+
+# Ignore IDE settings (VS Code / VSCodium / Visual Studio)
+.vscode/
+.vs/
+*.user
+*.suo
+
+# Ignore Docker related files to prevent loops
+Dockerfile
+.dockerignore
+
+# Ignore specific OS files
+.DS_Store
+Thumbs.db
