@@ -32,6 +32,21 @@ DevMedic is designed to be a digital black hole. We employ four layers of privac
 
 ---
 
+## 📸 See It In Action
+
+<p align="center">
+  <img src="DemoImages/Agent.png" alt="Agent Console" width="45%">
+  <img src="DemoImages/API.png" alt="API Logs" width="45%">
+</p>
+
+### Left: The Agent (Sensor)
+*Running natively on Linux, capturing high-frequency input patterns.*
+
+### Right: The API (Brain)
+*Running inside a locked-down Docker container, processing signals without internet access.*
+
+---
+
 ## 🚀 Prerequisites
 
 * **.NET 9 SDK** (For running the Agent)
@@ -100,4 +115,4 @@ The API analyzes the ratio of Keystrokes to Mouse Events to classify your state:
 ---
 
 ## 📝 License
-Private / Personal Use.
+MIT License
