@@ -2,10 +2,7 @@
 
 **DevMedic** is a distributed "Heart Monitor" for developers. It tracks your cognitive state (Coding, Browsing, Idle) based on your input patterns (Keystrokes vs. Mouse usage) and logs it to a persistent database.
 
-It is built as a **Privacy-First** application:
-1.  **The Agent** runs locally on your machine (Linux/Pop!_OS) to sense input.
-2.  **The API** runs in an isolated Docker container to record and analyze data.
-3.  **The Data** stays on your machine in a local SQLite database.
+It is built as a **Privacy-First "Black Hole"** application. Data enters the system, but the system is architecturally incapable of leaking it to the internet.
 
 ---
 
@@ -13,15 +10,32 @@ It is built as a **Privacy-First** application:
 
 The system uses a **Split Architecture** to balance access with isolation:
 
-* **DevMedic.Agent (Host OS):** A C# Console Application that runs natively. It uses `SharpHook` to listen to global low-level input events. It aggregates activity into 1-second "Pulses" and fires them to the API.
-* **DevMedic.Api (Docker):** A .NET 9 Web API running in a container. It acts as the "Brain," receiving pulses, classifying the activity (e.g., "Coding" vs. "Browsing"), and saving the history to a SQLite database via Entity Framework Core.
+* **DevMedic.Agent (Host OS):** A C# Console Application running natively on Linux. It uses `SharpHook` to listen to global low-level input events. It anonymizes your identity and aggregates activity into 1-second "Pulses" before firing them to the API.
+* **DevMedic.Api (Docker):** A .NET 9 Web API running in a locked-down container. It receives pulses, classifies activity, and saves history to a local SQLite database.
+
+---
+
+## 🤔 Philosophy ("The Why")
+
+Most trackers run in the cloud and sell your data. I wanted to see if I could build a system that was mathematically incapable of leaking data. This project proves you can build 'Black Hole' software that is useful, distributed, and completely private.
+
+---
+
+## 🛡️ Privacy ("The Vault")
+
+DevMedic is designed to be a digital black hole. We employ four layers of privacy hardening:
+
+1.  **Network Isolation:** The API container is bound strictly to `127.0.0.1`. It is invisible to your local network (LAN) and the internet. It cannot receive connections from outside, and it cannot initiate connections to the outside.
+2.  **Source Anonymization:** The Agent does **not** send your hostname or username. It generates a cryptographic hash (SHA256) of your machine name (e.g., `Device-4A7F92B1`).
+3.  **Telemetry Kill-Switch:** The .NET Runtime telemetry and Microsoft "phone home" features are explicitly disabled via environment variables (`DOTNET_CLI_TELEMETRY_OPTOUT`).
+4.  **Data Scrubbing:** The application counts *events* (e.g., "Key Pressed"). It **never** records *which* key was pressed. Your passwords and code content never leave the input buffer.
 
 ---
 
 ## 🚀 Prerequisites
 
 * **.NET 9 SDK** (For running the Agent)
-* **Docker** (For running the API)
+* **Docker & Docker Compose** (For running the API)
 * **Linux Environment** (Agent currently optimized for Linux/X11/Wayland via SharpHook)
 
 ---
@@ -29,15 +43,16 @@ The system uses a **Split Architecture** to balance access with isolation:
 ## 🛠️ Setup & Run
 
 ### 1. Start the API (The Brain)
-The API runs in Docker. You must run this first so the Agent has someone to talk to.
+We use `docker compose` to enforce network isolation and environment variables.
 
 ```bash
 # From the solution root
-docker build -t devmedic-api .
-docker run -p 5000:8080 devmedic-api
+docker compose up -d
 ```
 
-*The API is now listening on http://localhost:5000/api/pulse*
+* *The API is now running in the background, listening only on http://127.0.0.1:5000*
+* *To view logs:* `docker logs -f devmedic-api`
+* *To stop:* `docker compose down`
 
 ### 2. Start the Agent (The Sensor)
 Open a new terminal. The Agent must run natively to access input hooks.
@@ -62,31 +77,27 @@ The API analyzes the ratio of Keystrokes to Mouse Events to classify your state:
 
 ### Persistence
 * Data is saved to a **SQLite** database (`devmedic.db`) located inside the API container.
-* Uses **Entity Framework Core** for data access and automatic schema creation.
+* Uses **Entity Framework Core** for data access.
 
 ### Visualization
 * **Agent Console:** Shows real-time ASCII bar graphs of Key/Mouse intensity.
-* **API Console:** Logs received packets and classification decisions.
+* **API Console:** Shows simplified, noise-free logs of received pulses.
 
----
-
-## 🧪 Testing
-
-1.  Run both the API and Agent.
-2.  **Type frantically:** Watch the Agent bar fill up with `#` and the API log "CODING".
-3.  **Browse the web:** Move the mouse in circles. Watch the Agent bar fill with `.` and the API log "BROWSING".
-4.  **Stop everything:** Watch the Agent show a flatline and the API log "AWAY", then go silent.
+### Future Ideas ("The Roadmap")
+* **Visualization Dashboard** (Maybe with Blazor or React)
+* **JSON Export** (For data portability)
+* **"Deep Work" Session Timer**
 
 ---
 
 ## 📂 Project Structure
 
-* `DevMedic.Agent/`: The client-side sensor app.
-* `DevMedic.Api/`: The server-side recording API.
-* `Dockerfile`: Multi-stage build script for the API.
-* `.dockerignore`: Ensures clean build contexts.
+* `DevMedic.Agent/`: The client-side sensor app (Input hooks + Anonymization).
+* `DevMedic.Api/`: The server-side recording API (Logic + DB).
+* `docker-compose.yml`: Infrastructure-as-Code definition for the secure container.
+* `appsettings.json`: Configuration for log silencing.
 
 ---
 
-## 🛡️ Privacy Note
-DevMedic counts **events** (e.g., "Key Pressed"). It **DOES NOT** record **which** key was pressed. Your passwords and code content never leave the `SharpHook` buffer and are never sent to the API.
+## 📝 License
+Private / Personal Use.
