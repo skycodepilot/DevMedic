@@ -1,0 +1,14 @@
+services:
+  api:
+    image: devmedic-api
+    build: .
+    container_name: devmedic-api
+    # 1. BINDING: Keep it strictly local
+    ports:
+      - "127.0.0.1:5000:8080"
+    # 2. THE KILLSWITCH: Disable .NET "Phone Home"
+    environment:
+      - DOTNET_CLI_TELEMETRY_OPTOUT=1
+      - DOTNET_NOLOGO=1
+    # 3. RESTART POLICY: Keep it alive
+    restart: always
