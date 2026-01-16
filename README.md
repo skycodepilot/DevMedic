@@ -130,6 +130,7 @@ If you wish to inspect the database or back it up while the system is running, y
 docker cp devmedic-api:/app/devmedic.db ./devmedic_backup.db
 
 # You can then open 'devmedic_backup.db' with any SQLite viewer (e.g., DB Browser for SQLite)
+```
 
 ---
 
