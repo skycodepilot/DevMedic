@@ -114,5 +114,24 @@ The API analyzes the ratio of Keystrokes to Mouse Events to classify your state:
 
 ---
 
+## 💾 Data Persistence & "The Void"
+
+### Ephemeral by Design
+To maximize privacy, this Proof-of-Concept does **not** map a host volume to the container. The SQLite database lives entirely inside the container's encrypted virtual filesystem.
+
+* **Result:** If you stop the container (`docker compose stop`), the data persists.
+* **The "Burn" Feature:** If you remove the container (`docker compose down`), **the database is permanently destroyed.** This provides plausible deniability and ensures no long-term logs exist on the host machine by default.
+
+### How to Extract Data (For Debugging)
+If you wish to inspect the database or back it up while the system is running, you can manually extract the file from the "Black Hole" using Docker's copy command:
+
+```bash
+# Copy the DB from the container to your current folder
+docker cp devmedic-api:/app/devmedic.db ./devmedic_backup.db
+
+# You can then open 'devmedic_backup.db' with any SQLite viewer (e.g., DB Browser for SQLite)
+
+---
+
 ## 📝 License
 MIT License
