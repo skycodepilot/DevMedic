@@ -11,13 +11,13 @@ It is built as a **Privacy-First "Black Hole"** application. Data enters the sys
 The system uses a **Split Architecture** to balance access with isolation:
 
 * **DevMedic.Agent (Host OS):** A C# Console Application running natively on Linux. It uses `SharpHook` to listen to global low-level input events. It anonymizes your identity and aggregates activity into 1-second "Pulses" before firing them to the API.
-* **DevMedic.Api (Docker):** A .NET 9 Web API running in a locked-down container. It receives pulses, classifies activity, and saves history to a local SQLite database.
+* **DevMedic.Api (Docker):** A .NET 9 Web API running in a locked-down container. It receives pulses, classifies activity, and saves history to a local SQLite database. **The local SQLite database lives and dies in the container** - "docker compose down" or similar container-scrubbing ops get rid of the DB file.
 
 ---
 
 ## 🤔 Philosophy ("The Why")
 
-Most trackers run in the cloud and sell your data. I wanted to see if I could build a system that was mathematically incapable of leaking data. This project proves you can build 'Black Hole' software that is useful, distributed, and completely private.
+Most trackers run in the cloud and sell your data. I wanted to see if I could build a system that was mathematically incapable of leaking data. This project proves you can build 'Black Hole' software that is useful, distributed, and private.
 
 ---
 
@@ -29,6 +29,18 @@ DevMedic is designed to be a digital black hole. We employ four layers of privac
 2.  **Source Anonymization:** The Agent does **not** send your hostname or username. It generates a cryptographic hash (SHA256) of your machine name (e.g., `Device-4A7F92B1`).
 3.  **Telemetry Kill-Switch:** The .NET Runtime telemetry and Microsoft "phone home" features are explicitly disabled via environment variables (`DOTNET_CLI_TELEMETRY_OPTOUT`).
 4.  **Data Scrubbing:** The application counts *events* (e.g., "Key Pressed"). It **never** records *which* key was pressed. Your passwords and code content never leave the input buffer.
+
+---
+
+## ⚠️ Security Philosophy & Scope (PRIVACY LIMITATIONS)
+
+DevMedic is built on a **"Privacy-by-Design"** philosophy, implementing network isolation, source anonymization, and memory transience to minimize risk.
+
+However, users should understand the architectural boundaries:
+* **Supply Chain Trust:** This application relies on the `SharpHook` (libuiohook) library for input interception. While we sanitize data immediately in memory, the application implicitly trusts this library.
+* **Host Security:** The "Black Hole" architecture protects against *external* leakage. It does not (and cannot) protect against a host machine that is already compromised by root-level malware.
+* **The "Galactic" Trade-off:** We prioritized auditability and cross-platform compatibility over writing custom, kernel-level input drivers. This tool is designed for **personal privacy**, not for classified or nation-state threat models.
+* ** TL;DR: ** **DevMedic** presents reasonable privacy hardening for local data interception, limited by dependence on the `SharpHook` external library and other factors. **"Forever"-level privacy is the subject of (a) continued scrutiny of the `SharpHook` library and (b) additional security measures for the physical computer running the app (e.g. an armed guard).**
 
 ---
 
