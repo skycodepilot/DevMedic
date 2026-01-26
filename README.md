@@ -40,7 +40,7 @@ However, users should understand the architectural boundaries:
 * **Supply Chain Trust:** This application relies on the `SharpHook` (libuiohook) library for input interception. While we sanitize data immediately in memory, the application implicitly trusts this library.
 * **Host Security:** The "Black Hole" architecture protects against *external* leakage. It does not (and cannot) protect against a host machine that is already compromised by root-level malware.
 * **The "Galactic" Trade-off:** We prioritized auditability and cross-platform compatibility over writing custom, kernel-level input drivers. This tool is designed for **personal privacy**, not for classified or nation-state threat models.
-* ** TL;DR: ** **DevMedic** presents reasonable privacy hardening for local data interception, limited by dependence on the `SharpHook` external library and other factors. **"Forever"-level privacy is the subject of (a) continued scrutiny of the `SharpHook` library and (b) additional security measures for the physical computer running the app (e.g. an armed guard).**
+* **TL;DR:** **DevMedic** presents reasonable privacy hardening for local data interception, limited by dependence on the `SharpHook` external library and other factors. **"Forever"-level privacy is the subject of (a) continued scrutiny of the `SharpHook` library and (b) additional security measures for the physical computer running the app (e.g. an armed guard).**
 
 ---
 
